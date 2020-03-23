@@ -28,7 +28,7 @@ COOKIES_DETAIL = {
 }
 
 count = 100
-total = 1000
+total = 20000
 for i in range(int(total/count)):
     start = count * i
 
@@ -70,7 +70,12 @@ for i in range(int(total/count)):
         detail_res.encoding = 'utf-8'
 
         detail_pageSoup = BeautifulSoup(detail_res.text, 'html.parser')
-
+        try:
+            game_developer, game_publisher= [x.text for x in detail_pageSoup.select('div.summary.column > a')][:2]
+        except:
+            game_developer, game_publisher = '', ''
+        game_description = detail_pageSoup.select_one('div.game_area_description#game_area_description').text
+        language = [x.text.replace('\r','').replace('\n','').replace('\t','') for x in detail_pageSoup.select('td.ellipsis')]
         game_tag = '' if detail_pageSoup.select_one('div.blockbg > a:nth-child(2)') is None else detail_pageSoup.select_one('div.blockbg > a:nth-child(2)').text
         app_tags = [] if detail_pageSoup.select('.popular_tags > .app_tag') is None else [x.text.replace('\n', '').replace('\r', '').replace('\t','') for x in detail_pageSoup.select('.popular_tags > .app_tag')][:-1]
         #details_block = [] if detail_pageSoup.select('.details_block > b') is None else [x.text.replace(':', '') for x in detail_pageSoup.select('.details_block > b')][1:-1]
@@ -100,19 +105,28 @@ for i in range(int(total/count)):
         print(' [DONE]')
 
         game_json[title] = {
-            'detail_url' : detail_url,
-            'thumbnail' : thumbnail,
+            'data_source' : 'steam',
+            'game_name' : title,
+            'detail_detail_url' : detail_url,
+            'game_device' : 'PC',
+            'game_methods' : [],
             'released_date' : released_date,
+            'thumbnail_video': thumbnail_video,
+            'thumbnail_url': thumbnail,
+            'game_image_thumb': [],
+            'game_image_raw': thumbnail_screenshot,
+            'game_image_full': [],
             'review' : review,
             'discount' : discount,
             'price' : price,
+            'product_attribute': [],
             'game_tag' : game_tag,
             'app_tags' : app_tags,
-            'thumbnail_video': thumbnail_video,
-            'thumbnail_screenshot': thumbnail_screenshot
+
+            'game_publisher': game_publisher,
+            'language' : language,
+            'game_description' : game_description
         }
 
     with open('data/steam/{}_{}.json'.format(datetime.now().strftime("%Y%m%d"), i+1), 'w', encoding='utf-8') as f:
         json.dump(game_json, f, ensure_ascii=False)
-
-

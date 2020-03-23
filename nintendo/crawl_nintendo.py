@@ -50,6 +50,10 @@ for idx in range(len(gameList)):
 
     req = requests.get(game_detail_url, headers=HEADER)
     pageDetailSoup = BeautifulSoup(req.text, 'html.parser')
+    price = int(pageDetailSoup.select_one('span.price-wrapper > span.price').text.replace('₩','').replace(',',''))
+
+    print()
+    print(price)
 
     try:
         game_pusblisher = pageDetailSoup.select_one('.product-page-pusblisher-attr').text
@@ -77,18 +81,25 @@ for idx in range(len(gameList)):
         except:
             continue
     game_json[game_title] = {
+        'data_source' : 'nintendo',
+        'game_name' : game_title,
+
         'game_detail_url': game_detail_url,
         'game_device': game_device,
         'game_methods': game_methods,
         'releaseDate': releaseDate,
-        'language': language,
+        'thumbnail_video': [],
         'thumbnail_url': thumbnail_url,
-        'game_pusblisher': game_pusblisher,
-        'game_description': game_description,
-        'product_attribute': product_attribute,
         'game_image_thumb': game_image_thumb,
         'game_image_raw': game_image_raw,
-        'game_image_full': game_image_full
+        'game_image_full': game_image_full,
+        'review' : '',
+        'discount' : 0,
+        'price': price,
+        'product_attribute': product_attribute,
+        'language': language,
+        'game_pusblisher': game_pusblisher,
+        'game_description': game_description
     }
 
     print(' [DONE]')
